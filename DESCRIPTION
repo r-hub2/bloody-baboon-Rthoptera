@@ -1,0 +1,29 @@
+Package: Rthoptera
+Type: Package
+Title: Standardized Insect Bioacoustics
+Version: 0.1.0
+Depends: R (>= 3.5.0), shinyBS
+Authors@R: c(
+            person("Anonymous", "Anonymous", email = "frivasfu@purdue.edu",
+                    role = c("cre", "aut"), comment = c(ORCID = "0000-0000-0000-0000")),
+            person("Anonymous2", "Anonymous2", role = c("aut")))
+Maintainer: Anonymous  <frivasfu@purdue.edu>
+Description: The package provides a set of interactive functions (each one is a Shiny App) to analyze insect acoustic signals, including preprocessing (e.g., high-pass filter, remove DC offset, down-sampling, etc.). Analytical functions allow the user to automatically extract relevant acoustic features in both spectral and temporal dimensions. 
+License: CC BY-NC 4.0
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+Imports: bioacoustics, shiny (>= 1.0.0), shinyjs, ggplot2 (>= 3.0),
+        seewave, dplyr, tidyr, patchwork, plotly, tuneR, warbleR, DT,
+        bslib, colourpicker, cowplot, htmlwidgets, htmltools, magrittr,
+        purrr, scales, tibble, writexl, shinycssloaders
+Suggests: knitr, RthopteraSounds, rmarkdown, markdown, testthat (>=
+        3.0.0)
+VignetteBuilder: knitr
+URL: https://github.com/naturewaves/Rthoptera
+BugReports: https://github.com/naturewaves/Rthoptera/issues
+Config/testthat/edition: 3
+NeedsCompilation: no
+Packaged: 2024-10-22 02:56:31 UTC; fcori
+Author: Anonymous Anonymous [cre, aut]
+    (<https://orcid.org/0000-0000-0000-0000>),
+  Anonymous2 Anonymous2 [aut]

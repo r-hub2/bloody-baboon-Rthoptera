@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Preprocessing Audio</title>
+<style type="text/css">
+/**
+ * Prism.s theme ported from highlight.js's xcode style
+ */
+pre code {
+  padding: 1em;
+}
+.token.comment {
+  color: #007400;
+}
+.token.punctuation {
+  color: #999;
+}
+.token.tag,
+.token.selector {
+  color: #aa0d91;
+}
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: #1c00cf;
+}
+.token.property,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #c41a16;
+}
+.token.inserted {
+  background-color: #ccffd8;
+}
+.token.deleted {
+  background-color: #ffebe9;
+}
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #9a6e3a;
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #836c28;
+}
+.token.function,
+.token.class-name {
+  color: #DD4A68;
+}
+.token.regex,
+.token.important,
+.token.variable {
+  color: #5c2699;
+}
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+</style>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+body, .footnotes, code { font-size: .9em; }
+li li { font-size: .95em; }
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+pre, img { max-width: 100%; }
+pre, pre:hover {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+pre code {
+  display: block;
+  overflow-x: auto;
+}
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre) > code, code[class] { background-color: #F8F8F8; }
+code.language-undefined, pre > code:not([class]) {
+  background-color: inherit;
+  border: 1px solid #eee;
+}
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 1em;
+  border-left: 0.5em solid #eee;
+}
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC .numbered li { list-style: none; }
+#TOC .numbered { padding-left: 0; }
+#TOC .numbered ul { padding-left: 1em; }
+table, .body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.footnote-ref a::before { content: "["; }
+.footnote-ref a::after { content: "]"; }
+section.footnotes::before {
+  content: "";
+  display: block;
+  max-width: 20em;
+}
+
+@media print {
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+  tr, img { page-break-inside: avoid; }
+}
+@media only screen and (min-width: 992px) {
+  pre { white-space: pre; }
+}
+</style>
+</head>
+<body>
+<div class="frontmatter">
+<div class="title"><h1>Preprocessing Audio</h1></div>
+<div class="author"><h2>anonymous</h2></div>
+<div class="date"><h3>2024-10-02</h3></div>
+</div>
+<div class="body">
+<h2 id="when-and-how-to-preprocess-your-recordings">When and how to preprocess your recordings</h2>
+<p>There are many reasons why bioacousticians edit their recordings before analyzing them. This is especially true when working with field recordings, where non-target sounds may obscure the analyses, often occupying frequencies below the signal of interest. In other cases, the field recordist used an ultrasonic microphone and a high sampling rate (e.g., 128 kHz, 384 kHz) and the recorded insect happened to sing well  below the Nyquist frequency (half the sampling rate). Sometimes the insect doesn’t call very often, forcing us to monitor for long periods of silence without stopping the recording. In all these cases, we might want to preprocess our recordings. <em><strong>Rthoptera</strong></em> offers functions to deal with most of these issues, minimizing the need for multiple software in your workflow.</p>
+<p>DISCLAIMER: R is not optimized for rendering large amounts of data in plots. If you have long sound files (&gt; 1 min) recorded at high sampling rates (&gt; 48 kHz), you might want to subset them with a dedicated audio software before importing them into R, unless you have a lot of patience or a very capable computer. A popular free audio editor is Audacity.</p>
+<p>In this guide, we will work with the example Wave objects included in the package. To load all of them, run this:</p>
+<pre><code class="language-r">remotes::install_github(&quot;naturewaves/RthopteraSounds&quot;)
+library(RthopteraSounds)
+load_wave_data()
+</code></pre>
+<p>If occasionally you want to work with a single file of the included data, you can run, for example:</p>
+<pre><code class="language-r">data(&quot;tettigonia&quot;)
+</code></pre>
+<p>which will make the song of <em>Tettigonia cantans</em> available in the R environment.</p>
+<p>To use your own recordings you should run the <code>import_wave_app()</code>, which will allow you to select, name and import sound files as R objects of class “Wave”. This app is based on <code>bioacoustics</code>’ <code>read_audio()</code> function.</p>
+<p>Now you can use the different functions to preprocess the Wave before analysis, including trimming, filtering, and downsampling. All the preprocessing apps in <em><strong>Rthoptera</strong></em> produce blueprint-like plots to remind users that these are not intended for publication, but instead to aid in decision-making on the edits.</p>
+<p>As a rule of thumb, if you want to analyze several snippets of a recording separately, you should first evaluate if you need to do any filtering or downsampling before extracting the cuts to avoid repeating the process for each. If you want to analyze a single snippet from the wave file, you might want to trim it before filtering, which will optimize processing time for the other editing steps.</p>
+<h3 id="trim">Trim</h3>
+<p>This app is based on <code>tuneR</code>’s <code>extractWave()</code> function. To trim a Wave, run the <code>trim_app()</code>, plot the oscillogram, select the portion you want to save, type a name for it, and save it. You can overwrite the original Wave by assigning the same name for the selection (this will not have any effect outside the R environment), or assign a new name to create a new Wave object.If you want to save several snippets of the same length, just drag the first selection to the desired position and assign a new name before saving.</p>
+<pre><code class="language-r">trim_app()
+</code></pre>
+<p>For the downsampling and band-passing examples, we will use the included “platycleis” Wave, a recording of <em>Platycleis grisea</em> made by Cesare Brizio in Italy.</p>
+<h3 id="downsample">Downsample</h3>
+<p>This app is based on <code>seewave</code>’s <code>resamp()</code> function.<br />
+If you think the sampling rate used to record an insect was unnecessarily high, use the <code>downsample_app()</code> to verify this and downsample if appropriate. By design, the minimum Nyquist allowed for this in <code>Rthoptera</code> is 48 kHz. The other two options are 96 kHz, and 192 kHz. For most crickets, 48 kHz Nyquist will suffice, but caution must be applied. Once the app has launched, select the Wave you want to analyze and click “Plot”. Now you can assess what is the maximum frequency of interest (MaxFOI) by hovering over the Mean Power Spectrum. If the MaxFOI is less than half of the Nyquist (maximum visible frequency in the plot), you can consider downsampling. Select the closest available value above the MaxFOI and click “Downsample”.</p>
+<pre><code class="language-r">downsample_app()
+</code></pre>
+<h3 id="band-pass-filter">Band-pass Filter</h3>
+<p>This app is based on <code>seewave</code>’s <code>ffilter()</code> function.  If you believe that your recording has low-frequency noise or non-target (e.g., other species) sounds, you should consider applying a band-pass filter (BPF). The <code>band_pass_filter_app</code> allows you to verify the presence of non-target sound and its range, helping to choose an appropriate BPF. A Mean Power Spectrum view should be used to determine whether a non-target sound or noise is above the -20dB threshold typically employed to assess the bandwidth of the signal of interest (SOI). If non-target sound is detected, the user should choose a proper combination of high-pass filter and low-pass filter values which will significantly attenuate the sounds below outside this range, allowing for accurate measure and plot the SOI. Although it takes longer to render, the spectrogram view may be necessary for field recordings where multiple species are detected, as it allows for visual discrimination of the SOI from non-target signals by inspecting their temporal patterns, which are not visible in the mean power spectrum.</p>
+<pre><code class="language-r">band_pass_filter_app()
+</code></pre>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+</body>
+</html>
